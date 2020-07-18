@@ -26,7 +26,7 @@ def main():
     # configure window setings
     screen = pygame.display.set_mode((m_data.screenWidth, m_data.screenHeight))
     pygame.display.set_caption("Weather App")
-    icon = pygame.image.load('icon.png')
+    icon = pygame.image.load('res/icon.png')
     pygame.display.set_icon(icon)
 
     # initialize camera
@@ -36,7 +36,7 @@ def main():
     m_ruler = ruler()
 
     # load map image
-    gameMap = pygame.image.load('faerunMap.jpg')
+    gameMap = pygame.image.load('res/faerunMap.jpg')
     m_data.mapWidth, m_data.mapHeight = gameMap.get_size()
 
     # initialize weather data

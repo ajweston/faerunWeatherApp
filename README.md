@@ -1,3 +1,3 @@
 Faerun Weather App
 
-Work in progress.
+Source requires pygame to run.

@@ -21,6 +21,9 @@ class data:
 
         self.screenWidth = int(self.config['Screen']['width'])
         self.screenHeight = int(self.config['Screen']['height'])
+        
+        self.leftbutton = int(self.config['Mouse']['leftbutton'])
+        self.rightbutton = int(self.config['Mouse']['rightbutton'])
 
         self.movementBase = int(self.config['Movement']['baseSpeed'])
         self.movementMultiplier = int(self.config['Movement']['multiplier'])

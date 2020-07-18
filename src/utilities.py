@@ -151,7 +151,7 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
                 m_camera.deltaY = 0
         # mouse input
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
+            if event.button == data.leftbutton:
                 if not (data.leftClick):
                     data.leftClick = True
                     if mouseX < 80 and mouseY < 80:
@@ -178,11 +178,12 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
                                 data.month += 1
                             if data.month > 12:
                                 data.month = 1
+                            data.shutdown()
                             m_weatherGrid.advance()
 
                     data.selectX = int((mouseX + m_camera.posX)/data.gridSpread)
                     data.selectY = int((mouseY + m_camera.posY) / data.gridSpread)
-            if event.button == 3:
+            if event.button == data.rightbutton:
                 if not (data.rightClick):
                     data.rightClick = True
                     m_ruler.addPoint(mouseX + m_camera.posX, mouseY + m_camera.posY)
