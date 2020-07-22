@@ -77,6 +77,7 @@ def main():
         pygame.display.update()
 
     m_data.shutdown
+    m_weatherGrid.shutdown()
 
 
 main()

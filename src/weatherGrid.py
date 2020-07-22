@@ -7,19 +7,68 @@ class weatherGrid:
     def __init__(self, m_data):
         self.yMax = int(m_data.mapHeight / m_data.gridSpread) + 1
         self.xMax = int(m_data.mapWidth / m_data.gridSpread) + 1
-
-        # initialize 2D weather grid
         self.weather = []
+        weatherFile = open('./weatherData.csv', 'r')  
         for x in range(0, self.xMax):
             column = []
             for y in range(0, self.yMax):
                 column.insert(y, weather())
             self.weather.insert(x, column)
-        for x in range(0, self.xMax):
-            for y in range(0, self.yMax):
-                self.weather[x][y].precipitation = random.randint(0, 100)
-                self.weather[x][y].temperature = random.randint(0, 100)
+            
+        if weatherFile.closed:    
+            print('Error while opening saved weather data, reinitializing weather system.')
+            # reinitialize 2D weather grid
+            for x in range(0, self.xMax):
+                for y in range(0, self.yMax):
+                    self.weather[x][y].windDirection = random.randint(0, 7)
+                    self.weather[x][y].windSpeed = random.randint(0, 100)
+                    self.weather[x][y].precipitation = random.randint(0, 100)
+                    self.weather[x][y].temperature = random.randint(0, 100)
+                    self.weather[x][y].terrainType = random.randint(0, 5)
 
+        else:
+            line = weatherFile.readline()
+            if line == "":
+                for x in range(0, self.xMax):
+                    for y in range(0, self.yMax):
+                        self.weather[x][y].windDirection = random.randint(0, 7)
+                        self.weather[x][y].windSpeed = random.randint(0, 100)
+                        self.weather[x][y].precipitation = random.randint(0, 100)
+                        self.weather[x][y].temperature = random.randint(0, 100)
+                        self.weather[x][y].terrainType = random.randint(0, 5)
+            else:
+                fields = line.split(':')
+                xCheck = fields[1]
+                line = weatherFile.readline()
+                fields = line.split(':')
+                yCheck = fields[1]
+                
+                if int(xCheck) != self.xMax or int(yCheck) != self.yMax:
+                    print(f'Saved weather data does not match the current grid size. Found {int(xCheck)}x{int(yCheck)}, expected {self.xMax}x{self.yMax}')
+                    # reinitialize 2D weather grid
+                    
+                    for x in range(0, self.xMax):
+                        column = []
+                        for y in range(0, self.yMax):
+                            column.insert(y, weather())
+                        self.weather.insert(x, column)
+                    for x in range(0, self.xMax):
+                        for y in range(0, self.yMax):
+                            self.weather[x][y].precipitation = random.randint(0, 100)
+                            self.weather[x][y].temperature = random.randint(0, 100)
+                else:
+                    line = weatherFile.readline()
+                    while(1):
+                        line = weatherFile.readline()
+                        fields = line.split(',')
+                        if len(fields) < 7:
+                            break
+                        self.weather[int(fields[0])][int(fields[1])].windDirection = int(fields[2])
+                        self.weather[int(fields[0])][int(fields[1])].windSpeed = int(fields[3])
+                        self.weather[int(fields[0])][int(fields[1])].temperature = int(fields[4])
+                        self.weather[int(fields[0])][int(fields[1])].precipitation = int(fields[5])
+                        self.weather[int(fields[0])][int(fields[1])].terrainType = int(fields[6])
+            
         self.gridActive = False
         self.precipitationActive = False
 
@@ -98,3 +147,18 @@ class weatherGrid:
                              (baseX, baseY + m_data.gridSpread), thickness)
             pygame.draw.line(screen, (255, 255, 255), (baseX + m_data.gridSpread, baseY),
                              (baseX + m_data.gridSpread, baseY + m_data.gridSpread), thickness)
+                             
+    def shutdown(self):
+        weatherFile = open('./weatherData.csv', 'w')
+ 
+        if weatherFile.closed:
+            print('Error while saving weather data.')
+            return
+        weatherFile.write(f'Xmax:{self.xMax}\n')
+        weatherFile.write(f'Ymax:{self.yMax}\n')
+        weatherFile.write('CellX,CellY,windDirection,windSpeed,temperature,precipitation,terrainType\n')
+        for x in range(0, self.xMax):
+            for y in range(0, self.yMax):
+                weatherFile.write(f'{x},{y},{self.weather[x][y].windDirection},{self.weather[x][y].windSpeed},{self.weather[x][y].temperature},{self.weather[x][y].precipitation},{self.weather[x][y].terrainType}\n')
+        weatherFile.close()
+        
