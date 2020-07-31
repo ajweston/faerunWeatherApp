@@ -1,4 +1,5 @@
 import configparser
+import pygame
 
 class data:
 
@@ -14,11 +15,24 @@ class data:
         self.lCtrl = False
         self.mapWidth = 0
         self.mapHeight = 0
+        self.zoomKey = False
 
         # import configuration
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
+        
+        #temperature parameters
+        self.noiseMax = int(self.config['Temperature']['noiseMax'])
+        self.minMean = float(self.config['Temperature']['minMean'])
+        self.minStdDev = float(self.config['Temperature']['minStdDev'])
+        self.minCurve = float(self.config['Temperature']['minCurve'])
+        self.minOffset = float(self.config['Temperature']['minOffset'])
+        self.maxMean = float(self.config['Temperature']['maxMean'])
+        self.maxStdDev = float(self.config['Temperature']['maxStdDev'])
+        self.maxCurve = float(self.config['Temperature']['maxCurve'])
+        self.maxOffset = float(self.config['Temperature']['maxOffset'])
 
+        #other parameters
         self.screenWidth = int(self.config['Screen']['width'])
         self.screenHeight = int(self.config['Screen']['height'])
         
@@ -40,6 +54,15 @@ class data:
 
         self.selectX = 0
         self.selectY = 0
+        # load map image
+        gameMap = pygame.image.load('res/faerunMap.jpg')
+        self.mapWidth, self.mapHeight = gameMap.get_size()
+        self.mapSurface = pygame.Surface((self.mapWidth, self.mapHeight))  # the size of your rect
+        self.mapSurface.blit(gameMap,(0,0))
+        self.mapSurfaceDraw = self.mapSurface
+
+    def scaleMap(self,zoom):
+        self.mapSurfaceDraw = pygame.transform.scale(self.mapSurface, (int(self.mapWidth*zoom),int(self.mapHeight*zoom)))
 
     def updateScreenDimensions(self, width, height):
         self.screenWidth = width

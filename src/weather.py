@@ -1,8 +1,10 @@
+import math
+
 class weather:
     windDirections = ['North', 'Northeast', 'East', 'Southeast', 'South', 'Southwest', 'West', 'Northwest']
     precipitations = ['Sunny', 'Cloudy', 'Light Rain', 'Heavy Rain', 'Sleet', 'Light Snow', 'Heavy Snow',
                       'Thunder Storm', 'Severe']
-
+        
     def __init__(self):
         self.windDirection = 0
         self.windSpeed = 0

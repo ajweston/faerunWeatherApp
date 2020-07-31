@@ -1,10 +1,75 @@
 import pygame
 import tkinter as tk
 from tkinter import messagebox
+from weather import weather
 
 SHOW_GRID = 0x01
 SHOW_INFO = 0x02
 SHOW_PRECIP = 0x04
+
+def datePopup(m_data):
+    settingsWindow = tk.Tk()
+    label = tk.Label(
+        text="Date",
+        fg="black",
+        bg="white",
+        width=30,
+        height=1
+    )
+    label1 = tk.Label(
+        text="Month",
+        fg="black",
+        bg="white",
+        width=30,
+        height=1
+    )
+    entry1 = tk.Entry(fg="black", bg="white", width=50)
+
+    label2 = tk.Label(
+        text="Day",
+        fg="black",
+        bg="white",
+        width=30,
+        height=1
+    )
+    entry2 = tk.Entry(fg="black", bg="white", width=50)
+
+    def settingsButton():
+        try:
+            month = int(entry1.get())
+            day = int(entry2.get())
+            if not (0 < month < 13 and 0 < day <31):
+                return
+            
+            m_data.config['Last Date']['month'] = str(month)
+            m_data.config['Last Date']['day'] = str(day)
+            with open('config.ini', 'w') as configfile:
+                m_data.config.write(configfile)
+            settingsWindow.destroy()
+        except:
+            messagebox.showwarning(title='Error', message='Invalid Screen Dimensions')
+
+    button = tk.Button(
+        text="Update",
+        width=25,
+        height=5,
+        bg="white",
+        fg="black",
+        command=settingsButton
+    )
+    # pack
+    label.pack()
+    label1.pack()
+    entry1.pack()
+    label2.pack()
+    entry2.pack()
+    button.pack()
+
+    settingsWindow.mainloop()
+    m_data.config.read('config.ini')
+
+    m_data.day = int(m_data.config['Last Date']['day'])
+    m_data.month = int(m_data.config['Last Date']['month'])
 
 def settingsPopup(m_data):
     settingsWindow = tk.Tk()
@@ -78,13 +143,19 @@ def drawInfoBlock(screen, m_data, m_weatherGrid, font12):
         # text
         text = font12.render(f'{m_data.months[m_data.month - 1]}, {m_data.day}', False, (0, 0, 0))
         screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, 10))
-
-        text = font12.render(f'Precipitation: {m_weatherGrid.weather[m_data.selectX][m_data.selectY].precipitation}', False, (0, 0, 0))
+        
+        text = font12.render(f'Wind Direction: {weather.windDirections[m_weatherGrid.weather[m_data.selectX][m_data.selectY].windDirection]}', False, (0, 0, 0))
         screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, 40))
+        
+        text = font12.render(f'Wind Speed: {m_weatherGrid.weather[m_data.selectX][m_data.selectY].windSpeed}', False, (0, 0, 0))
+        screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, 70))
+        
+        text = font12.render(f'Precipitation: {m_weatherGrid.weather[m_data.selectX][m_data.selectY].precipitation}', False, (0, 0, 0))
+        screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, 100))
 
         text = font12.render(f'Temperature: {m_weatherGrid.weather[m_data.selectX][m_data.selectY].temperature}',
                              False, (0, 0, 0))
-        screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, 70))
+        screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, 130))
 
         text = font12.render(f'Coordinates: {m_data.selectX}, {m_data.selectY}', False, (0, 0, 0))
         screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, m_data.screenHeight-160))
@@ -111,6 +182,10 @@ def popupButtons(screen, m_data, mouseX, mouseY, font12):
             pygame.draw.rect(screen, (200, 200, 200), (m_data.screenWidth - 80, m_data.screenHeight - 80, 80, 80))
             settingsText = font12.render('Next Day', False, (0, 0, 0))
             screen.blit(settingsText, (m_data.screenWidth - 70, m_data.screenHeight - 50))
+        if m_data.screenWidth - 80 > mouseX > m_data.screenWidth - 160 and mouseY > m_data.screenHeight - 80:
+            pygame.draw.rect(screen, (200, 100, 100), (m_data.screenWidth - 160, m_data.screenHeight - 80, 80, 80))
+            settingsText = font12.render('Set Date', False, (0, 0, 0))
+            screen.blit(settingsText, (m_data.screenWidth - 150, m_data.screenHeight - 50))
 
 
 def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
@@ -118,9 +193,20 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
         # control events
         if event.type == pygame.QUIT:
             data.running = False
-
+        
         # key input
         if event.type == pygame.KEYDOWN:
+            
+            if event.key == pygame.K_KP_PLUS:
+                if not data.zoomKey:
+                    data.zoomKey = True
+                    m_camera.changeZoom(True, data)
+                    
+            if event.key == pygame.K_KP_MINUS:
+                if not data.zoomKey:
+                    data.zoomKey = True
+                    m_camera.changeZoom(False,data)
+        
             if event.key == pygame.K_RETURN:
                 if data.state & SHOW_INFO:
                     data.day += 1
@@ -131,7 +217,8 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
                         data.month = 1
                     m_weatherGrid.advance()
 
-
+            if event.key == pygame.K_LSHIFT:
+                m_camera.deltaMultiplier = data.movementMultiplier
             if event.key == pygame.K_LEFT:
                 m_camera.deltaX = -data.movementBase
             elif event.key == pygame.K_RIGHT:
@@ -145,6 +232,10 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
             if event.key == pygame.K_ESCAPE:
                 settingsPopup(data)
         if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LSHIFT:
+                m_camera.deltaMultiplier = 1.0
+            if event.key == pygame.K_KP_PLUS or event.key == pygame.K_KP_MINUS:
+                data.zoomKey = False
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 m_camera.deltaX = 0
             if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
@@ -179,10 +270,13 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
                             if data.month > 12:
                                 data.month = 1
                             data.shutdown()
-                            m_weatherGrid.advance()
-
-                    data.selectX = int((mouseX + m_camera.posX)/data.gridSpread)
-                    data.selectY = int((mouseY + m_camera.posY) / data.gridSpread)
+                            m_weatherGrid.advance(data)
+                        if data.screenWidth - 80 > mouseX > data.screenWidth - 160 and mouseY > data.screenHeight - 80:
+                            datePopup(data)
+                            m_weatherGrid.advance(data)
+                    if 0 <= mouseX + m_camera.posX <= data.mapWidth*m_camera.zoom and 0 <= mouseY + m_camera.posY <= data.mapHeight*m_camera.zoom: 
+                        data.selectX = int((mouseX + m_camera.posX)/(data.gridSpread * m_camera.zoom))
+                        data.selectY = int((mouseY + m_camera.posY) / (data.gridSpread * m_camera.zoom))
             if event.button == data.rightbutton:
                 if not (data.rightClick):
                     data.rightClick = True

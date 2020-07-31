@@ -35,10 +35,7 @@ def main():
     # initialize ruler
     m_ruler = ruler()
 
-    # load map image
-    gameMap = pygame.image.load('res/faerunMap.jpg')
-    m_data.mapWidth, m_data.mapHeight = gameMap.get_size()
-
+    
     # initialize weather data
     m_weatherGrid = weatherGrid(m_data)
 
@@ -48,18 +45,18 @@ def main():
         # process events (input, etc.)
         mouseX, mouseY = pygame.mouse.get_pos()
 
-        utilities.processInput(m_data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid)
+        utilities.processInput(m_data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid, )
 
         # update camera position
-        m_camera.posX = m_camera.posX + m_camera.deltaX
-        m_camera.posY = m_camera.posY + m_camera.deltaY
+        m_camera.posX = m_camera.posX + m_camera.deltaX * m_camera.deltaMultiplier
+        m_camera.posY = m_camera.posY + m_camera.deltaY * m_camera.deltaMultiplier
         m_camera.boundaryCheck(m_data.mapWidth, m_data.mapHeight, m_data.screenWidth, m_data.screenHeight)
 
         # fill screen
         screen.fill((0, 0, 0))
 
         # draw map
-        screen.blit(gameMap, (int(-m_camera.posX), int(-m_camera.posY)))
+        screen.blit(m_data.mapSurfaceDraw, (int(-m_camera.posX), int(-m_camera.posY)))
 
         # weather grid draw
         m_weatherGrid.draw(screen, m_data, m_camera)
