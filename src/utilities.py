@@ -201,11 +201,13 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
                 if not data.zoomKey:
                     data.zoomKey = True
                     m_camera.changeZoom(True, data)
+                    m_ruler.zoomChange(m_camera)
                     
             if event.key == pygame.K_KP_MINUS:
                 if not data.zoomKey:
                     data.zoomKey = True
                     m_camera.changeZoom(False,data)
+                    m_ruler.zoomChange(m_camera)
         
             if event.key == pygame.K_RETURN:
                 if data.state & SHOW_INFO:
@@ -280,7 +282,7 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
             if event.button == data.rightbutton:
                 if not (data.rightClick):
                     data.rightClick = True
-                    m_ruler.addPoint(mouseX + m_camera.posX, mouseY + m_camera.posY)
+                    m_ruler.addPoint(mouseX + m_camera.posX, mouseY + m_camera.posY, m_camera)
 
 
         if event.type == pygame.MOUSEBUTTONUP:
