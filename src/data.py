@@ -31,6 +31,7 @@ class data:
         self.maxStdDev = float(self.config['Temperature']['maxStdDev'])
         self.maxCurve = float(self.config['Temperature']['maxCurve'])
         self.maxOffset = float(self.config['Temperature']['maxOffset'])
+        self.interpolationPower = float(self.config['Temperature']['interpolationPower'])
 
         #other parameters
         self.screenWidth = int(self.config['Screen']['width'])

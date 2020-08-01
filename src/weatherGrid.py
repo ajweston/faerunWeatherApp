@@ -101,7 +101,7 @@ class weatherGrid:
     
     def tempUpdate(self,x,y,data,terrainType):
         
-        temp = (y/331)*self.maxTemp + (1-(y/331))*self.minTemp
+        temp = pow((y/331),data.interpolationPower)*self.maxTemp + (1-pow((y/331),data.interpolationPower))*self.minTemp
         
         return int(temp + random.randint(-data.noiseMax, data.noiseMax))
 
