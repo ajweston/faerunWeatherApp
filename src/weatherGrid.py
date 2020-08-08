@@ -121,39 +121,40 @@ class weatherGrid:
         
         for x in range(0, self.xMax):
             for y in range(0, self.yMax):
-                self.weather[x][y].windSpeed = random.randint(0, 100)
-                self.weather[x][y].temperature = self.tempUpdate(x,y,m_data,self.weather[x][y].terrainType)
+                self.weather[x][y].temperature = self.tempUpdate(x,y,m_data,self.weather[x][y].terrainType)+random.randint(-m_data.noiseMax, m_data.noiseMax)
+                self.weather[x][y].precipitation = random.randint(0, 100)
                 if self.weather[x][y].precipitation > 100:
                     self.weather[x][y].precipitation = 0
+                self.weather[x][y].windSpeed = m_data.curveWidth * pow(float(self.weather[x][y].precipitation - m_data.xOffset),2.0) + m_data.yOffset + random.randint(-m_data.windNoise, m_data.windNoise)
         
         #update windDirection, point away from warmest surrounding tile
         for x in range(1, self.xMax-1):
             for y in range(1,self.yMax-1):
-                highest = -1000  
+                highest = -1  
                 direction = -1
-                if self.weather[x-1][y-1].temperature > highest:
-                    highest = self.weather[x-1][y-1].temperature
+                if self.weather[x-1][y-1].precipitation > highest:
+                    highest = self.weather[x-1][y-1].precipitation
                     direction = 3
-                if self.weather[x][y-1].temperature > highest:
-                    highest = self.weather[x][y-1].temperature
+                if self.weather[x][y-1].precipitation > highest:
+                    highest = self.weather[x][y-1].precipitation
                     direction = 4
-                if self.weather[x+1][y-1].temperature > highest:
-                    highest = self.weather[x+1][y-1].temperature
+                if self.weather[x+1][y-1].precipitation > highest:
+                    highest = self.weather[x+1][y-1].precipitation
                     direction = 5
-                if self.weather[x+1][y].temperature > highest:
-                    highest = self.weather[x+1][y].temperature
+                if self.weather[x+1][y].precipitation > highest:
+                    highest = self.weather[x+1][y].precipitation
                     direction = 6
-                if self.weather[x+1][y+1].temperature > highest:
-                    highest = self.weather[x+1][y+1].temperature
+                if self.weather[x+1][y+1].precipitation > highest:
+                    highest = self.weather[x+1][y+1].precipitation
                     direction = 7
-                if self.weather[x][y+1].temperature > highest:
-                    highest = self.weather[x][y+1].temperature
+                if self.weather[x][y+1].precipitation > highest:
+                    highest = self.weather[x][y+1].precipitation
                     direction = 0
-                if self.weather[x-1][y+1].temperature > highest:
-                    highest = self.weather[x-1][y+1].temperature
+                if self.weather[x-1][y+1].precipitation > highest:
+                    highest = self.weather[x-1][y+1].precipitation
                     direction = 1
-                if self.weather[x-1][y].temperature > highest:
-                    highest = self.weather[x-1][y].temperature
+                if self.weather[x-1][y].precipitation > highest:
+                    highest = self.weather[x-1][y].precipitation
                     direction = 2
                 self.weather[x][y].windDirection = direction
         for x in range(0,self.yMax):

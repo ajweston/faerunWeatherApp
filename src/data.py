@@ -52,6 +52,11 @@ class data:
         self.sunnyMax = int(self.config['Precipitation']['sunnyMax'])
         self.lightMax = int(self.config['Precipitation']['lightMax'])
         self.heavyMax = int(self.config['Precipitation']['heavyMax'])
+        
+        self.curveWidth = float(self.config['Wind Speed']['curveWidth'])
+        self.xOffset = int(self.config['Wind Speed']['xOffset'])
+        self.yOffset = int(self.config['Wind Speed']['yOffset'])
+        self.windNoise = int(self.config['Wind Speed']['windNoiseMax'])
 
         self.selectX = 0
         self.selectY = 0
