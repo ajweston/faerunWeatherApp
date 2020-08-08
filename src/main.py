@@ -39,8 +39,6 @@ def main():
     # initialize weather data
     m_weatherGrid = weatherGrid(m_data)
 
-    m_weatherGrid.weather[50][0].precipitation = 50
-
     while m_data.running:
         # process events (input, etc.)
         mouseX, mouseY = pygame.mouse.get_pos()

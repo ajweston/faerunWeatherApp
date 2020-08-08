@@ -10,4 +10,5 @@ class weather:
         self.windSpeed = 0
         self.temperature = 0
         self.precipitation = 0
+        self.pressure = 0
         self.terrainType = 0

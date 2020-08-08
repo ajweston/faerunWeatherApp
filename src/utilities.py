@@ -150,7 +150,7 @@ def drawInfoBlock(screen, m_data, m_weatherGrid, font12):
         text = font12.render(f'Wind Speed: {m_weatherGrid.weather[m_data.selectX][m_data.selectY].windSpeed}', False, (0, 0, 0))
         screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, 70))
         
-        text = font12.render(f'Precipitation: {m_weatherGrid.weather[m_data.selectX][m_data.selectY].precipitation}', False, (0, 0, 0))
+        text = font12.render(f'Pressure: {m_weatherGrid.weather[m_data.selectX][m_data.selectY].pressure}', False, (0, 0, 0))
         screen.blit(text, (m_data.screenWidth - int(m_data.screenWidth / 4) + 10, 100))
 
         text = font12.render(f'Temperature: {m_weatherGrid.weather[m_data.selectX][m_data.selectY].temperature}',
@@ -174,7 +174,7 @@ def popupButtons(screen, m_data, mouseX, mouseY, font12):
         pygame.draw.rect(screen, (100, 255, 100), (0, 160, 80, 80))
         settingsText = font12.render('Show', False, (0, 0, 0))
         screen.blit(settingsText, (25, 190))
-        settingsText = font12.render('Precipitation', False, (0, 0, 0))
+        settingsText = font12.render('Pressure', False, (0, 0, 0))
         screen.blit(settingsText, (8, 200))
 
     if m_data.state & SHOW_INFO:
@@ -255,13 +255,13 @@ def processInput(data, mouseX, mouseY, m_camera, m_ruler, m_weatherGrid):
 
                     if mouseX < 80 and 80 < mouseY < 160:
                         m_weatherGrid.gridActive = not (m_weatherGrid.gridActive)
-                        m_weatherGrid.precipitationActive = False
+                        m_weatherGrid.pressureActive = False
                     if mouseX < 80 and 160 < mouseY < 240:
-                        if not(m_weatherGrid.precipitationActive):
-                            m_weatherGrid.precipitationActive = True
+                        if not(m_weatherGrid.pressureActive):
+                            m_weatherGrid.pressureActive = True
                             m_weatherGrid.gridActive = True
                         else:
-                            m_weatherGrid.precipitationActive = False
+                            m_weatherGrid.pressureActive = False
                             m_weatherGrid.gridActive = False
                     if data.state & SHOW_INFO:
                         if mouseX > data.screenWidth - 80 and mouseY > data.screenHeight - 80:

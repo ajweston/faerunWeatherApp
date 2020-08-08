@@ -35,14 +35,20 @@ class weatherGrid:
         self.minTemp = minMul*pow(math.e,minPwr)+m_data.minOffset
         
         self.weather = []
-        weatherFile = open('./weatherData.csv', 'r')  
+        fileError = False
+        try:
+            weatherFile = open('./weatherData.csv', 'r')  
+            if weatherFile.closed:
+                fileError = True
+        except:
+            fileError = True
         for x in range(0, self.xMax):
             column = []
             for y in range(0, self.yMax):
                 column.insert(y, weather())
             self.weather.insert(x, column)
             
-        if weatherFile.closed:    
+        if fileError:    
             print('Error while opening saved weather data, reinitializing weather system.')
             # reinitialize 2D weather grid
             for x in range(0, self.xMax):
@@ -50,6 +56,7 @@ class weatherGrid:
                     self.weather[x][y].windDirection = random.randint(0, 7)
                     self.weather[x][y].windSpeed = random.randint(0, 100)
                     self.weather[x][y].precipitation = random.randint(0, 100)
+                    self.weather[x][y].pressure = random.randint(0,100)
                     self.weather[x][y].temperature = random.randint(0, 100)
                     self.weather[x][y].terrainType = random.randint(0, 5)
 
@@ -61,6 +68,7 @@ class weatherGrid:
                         self.weather[x][y].windDirection = random.randint(0, 7)
                         self.weather[x][y].windSpeed = random.randint(0, 100)
                         self.weather[x][y].precipitation = random.randint(0, 100)
+                        self.weather[x][y].pressure = random.randint(0,100)
                         self.weather[x][y].temperature = random.randint(0, 100)
                         self.weather[x][y].terrainType = random.randint(0, 5)
             else:
@@ -82,6 +90,7 @@ class weatherGrid:
                     for x in range(0, self.xMax):
                         for y in range(0, self.yMax):
                             self.weather[x][y].precipitation = random.randint(0, 100)
+                            self.weather[x][y].pressure = random.randint(0,100)
                             self.weather[x][y].temperature = random.randint(0, 100)
                 else:
                     line = weatherFile.readline()
@@ -94,10 +103,11 @@ class weatherGrid:
                         self.weather[int(fields[0])][int(fields[1])].windSpeed = int(fields[3])
                         self.weather[int(fields[0])][int(fields[1])].temperature = int(fields[4])
                         self.weather[int(fields[0])][int(fields[1])].precipitation = int(fields[5])
-                        self.weather[int(fields[0])][int(fields[1])].terrainType = int(fields[6])
+                        self.weather[int(fields[0])][int(fields[1])].pressure = int(fields[6])
+                        self.weather[int(fields[0])][int(fields[1])].terrainType = int(fields[7])
             
         self.gridActive = False
-        self.precipitationActive = False
+        self.pressureActive = False
     
     def tempUpdate(self,x,y,data,terrainType):
         
@@ -122,39 +132,39 @@ class weatherGrid:
         for x in range(0, self.xMax):
             for y in range(0, self.yMax):
                 self.weather[x][y].temperature = self.tempUpdate(x,y,m_data,self.weather[x][y].terrainType)+random.randint(-m_data.noiseMax, m_data.noiseMax)
-                self.weather[x][y].precipitation = random.randint(0, 100)
-                if self.weather[x][y].precipitation > 100:
-                    self.weather[x][y].precipitation = 0
-                self.weather[x][y].windSpeed = m_data.curveWidth * pow(float(self.weather[x][y].precipitation - m_data.xOffset),2.0) + m_data.yOffset + random.randint(-m_data.windNoise, m_data.windNoise)
+                self.weather[x][y].pressure = random.randint(0, 100)
+                if self.weather[x][y].pressure > 100:
+                    self.weather[x][y].pressure = 0
+                self.weather[x][y].windSpeed = int(m_data.curveWidth * pow(float(self.weather[x][y].pressure - m_data.xOffset),2.0) + m_data.yOffset + random.randint(-m_data.windNoise, m_data.windNoise))
         
         #update windDirection, point away from warmest surrounding tile
         for x in range(1, self.xMax-1):
             for y in range(1,self.yMax-1):
                 highest = -1  
                 direction = -1
-                if self.weather[x-1][y-1].precipitation > highest:
-                    highest = self.weather[x-1][y-1].precipitation
+                if self.weather[x-1][y-1].pressure > highest:
+                    highest = self.weather[x-1][y-1].pressure
                     direction = 3
-                if self.weather[x][y-1].precipitation > highest:
-                    highest = self.weather[x][y-1].precipitation
+                if self.weather[x][y-1].pressure > highest:
+                    highest = self.weather[x][y-1].pressure
                     direction = 4
-                if self.weather[x+1][y-1].precipitation > highest:
-                    highest = self.weather[x+1][y-1].precipitation
+                if self.weather[x+1][y-1].pressure > highest:
+                    highest = self.weather[x+1][y-1].pressure
                     direction = 5
-                if self.weather[x+1][y].precipitation > highest:
-                    highest = self.weather[x+1][y].precipitation
+                if self.weather[x+1][y].pressure > highest:
+                    highest = self.weather[x+1][y].pressure
                     direction = 6
-                if self.weather[x+1][y+1].precipitation > highest:
-                    highest = self.weather[x+1][y+1].precipitation
+                if self.weather[x+1][y+1].pressure > highest:
+                    highest = self.weather[x+1][y+1].pressure
                     direction = 7
-                if self.weather[x][y+1].precipitation > highest:
-                    highest = self.weather[x][y+1].precipitation
+                if self.weather[x][y+1].pressure > highest:
+                    highest = self.weather[x][y+1].pressure
                     direction = 0
-                if self.weather[x-1][y+1].precipitation > highest:
-                    highest = self.weather[x-1][y+1].precipitation
+                if self.weather[x-1][y+1].pressure > highest:
+                    highest = self.weather[x-1][y+1].pressure
                     direction = 1
-                if self.weather[x-1][y].precipitation > highest:
-                    highest = self.weather[x-1][y].precipitation
+                if self.weather[x-1][y].pressure > highest:
+                    highest = self.weather[x-1][y].pressure
                     direction = 2
                 self.weather[x][y].windDirection = direction
         for x in range(0,self.yMax):
@@ -166,8 +176,8 @@ class weatherGrid:
 
 
     def draw(self, screen, m_data, m_camera):
-        # draw precipitation
-        if self.precipitationActive:
+        # draw pressure
+        if self.pressureActive:
             # get boundaries
             minX = m_camera.posX / (m_data.gridSpread * m_camera.zoom) - 1
             if minX < 0:
@@ -191,26 +201,11 @@ class weatherGrid:
             s.set_alpha(200)  # alpha level
             s.fill((0, 255, 0))  # this fills the entire surface
 
-            # draw the precipitation markers
+            # draw the pressure markers
             for x in range(minX, maxX):
                 for y in range(minY, maxY):
-                    # check precipitation type
-                    if self.weather[x][y].precipitation < m_data.sunnyMax:
-                        continue
-                    elif self.weather[x][y].precipitation < m_data.cloudyMax:
-                        s.fill((100, 100, 100))
-                    elif self.weather[x][y].precipitation < m_data.lightMax and self.weather[x][y].temperature > 34:
-                        s.fill((0, 200, 0))
-                    elif self.weather[x][y].precipitation < m_data.lightMax and self.weather[x][
-                        y].temperature <= 34:
-                        s.fill((238, 177, 218))
-                    elif self.weather[x][y].precipitation < m_data.heavyMax and self.weather[x][y].temperature > 34:
-                        s.fill((0, 100, 0))
-                    elif self.weather[x][y].precipitation < m_data.heavyMax and self.weather[x][
-                        y].temperature <= 34:
-                        s.fill((196, 107, 167))
-                    else:
-                        s.fill((255,0,0))
+                    red = self.weather[x][y].pressure*2.55
+                    s.fill((int(red),0,int(255-red)))
                     screen.blit(s, (int((x * m_data.gridSpread * m_camera.zoom) - m_camera.posX),
                                     int((y * m_data.gridSpread* m_camera.zoom) - m_camera.posY)))  # (0,0) are the top-left coordinates
         # draw grid
@@ -243,9 +238,9 @@ class weatherGrid:
             return
         weatherFile.write(f'Xmax:{self.xMax}\n')
         weatherFile.write(f'Ymax:{self.yMax}\n')
-        weatherFile.write('CellX,CellY,windDirection,windSpeed,temperature,precipitation,terrainType\n')
+        weatherFile.write('CellX,CellY,windDirection,windSpeed,temperature,precipitation,pressure,terrainType\n')
         for x in range(0, self.xMax):
             for y in range(0, self.yMax):
-                weatherFile.write(f'{x},{y},{self.weather[x][y].windDirection},{self.weather[x][y].windSpeed},{self.weather[x][y].temperature},{self.weather[x][y].precipitation},{self.weather[x][y].terrainType}\n')
+                weatherFile.write(f'{x},{y},{self.weather[x][y].windDirection},{self.weather[x][y].windSpeed},{self.weather[x][y].temperature},{self.weather[x][y].precipitation},{self.weather[x][y].pressure},{self.weather[x][y].terrainType}\n')
         weatherFile.close()
         
